@@ -139,6 +139,7 @@ app.get('/tasks/:id', async (req, res)=>{
         res.status(500).send(e)
     })*/
 })
+app.patch('/tasks/:id', async)
 
 app.listen(port, ()=>{
     console.log("Server is running on port " + port)
