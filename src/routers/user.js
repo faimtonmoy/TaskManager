@@ -1,6 +1,7 @@
 
 const express= require('express')
 const router= new express.Router()
+const auth= require('../middleware/auth')
 const User= require('../models/users')
 
 
@@ -30,21 +31,8 @@ router.post('/users/login', async (req, res) => {
         res.status(400).send(e)
     }
 })
-router.get('/users', async (req,res)=>{
-    try{
-        const user= await User.find({})
-        res.send(user)
-
-    }catch(e){
-        res.status(400).send(e)
-    }
-    /*User.find({}).then((users)=>{
-        res.send(users)
-    }).catch((e)=>{
-
-        res.status(400).send(e)
-
-    })*/
+router.get('/users/me', auth, async (req, res) => {
+    res.send(req.user)
 })
 router.get('/users/:id', async (req, res) => {
     const _id = req.params.id
