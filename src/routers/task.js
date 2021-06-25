@@ -22,10 +22,10 @@ router.post ('/tasks', auth, async (req, res)=>{
         res.status(400).send(e)
     })*/
 })
-router.get('/tasks',async (req, res)=>{
+router.get('/tasks',auth,async (req, res)=>{
     try{
       
-       const task= await Task.find({})
+       const task= await Task.find({Owner: req.user._id})
        res.send(task)
 
     } catch(e){
@@ -61,7 +61,7 @@ router.get('/tasks/:id', auth, async (req, res) => {
         res.status(500).send(e)
     })*/
 })
-router.patch('/tasks/:id',  async(req, res)=>{
+router.patch('/tasks/:id', auth, async(req, res)=>{
     const updates= Object.keys(req.body)
     const allowUpdates= ['Description', 'Completed']
     const validOperation= updates.every((update)=> allowUpdates.includes(update))
@@ -69,14 +69,16 @@ router.patch('/tasks/:id',  async(req, res)=>{
         return res.status(400).send({error:'Invalid Value'})
     }
     try{
-        const task= await Task.findById(req.params.id)
-        updates.forEach((update)=>task[update]= req.body[update])
-        await task.save()
+        //const task= await Task.findById(req.params.id)
+        const task= await Task.findOne({_id: req.params.id, Owner: req.user._id})
+        
         //const update= await Task.findByIdAndUpdate(req.params.id, req.body, {new: true, runValidators: true})
         if(!task)
         {
             return res.status(404).send()
         }
+        updates.forEach((update)=>task[update]= req.body[update])
+        await task.save()
         res.send(task)
 
     }catch(e){
@@ -85,9 +87,9 @@ router.patch('/tasks/:id',  async(req, res)=>{
     
 
 })
-router.delete('/tasks/:id', async (req, res)=>{
+router.delete('/tasks/:id', auth, async (req, res)=>{
     try{
-       const task= await Task.findByIdAndDelete(req.params.id)
+       const task= await Task.findOneAndDelete({_id: req.params.id, Owner: req.user._id})
        if(!task)
        {
            res.status(400).send()
